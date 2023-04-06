@@ -14,19 +14,6 @@ def import_data(query = 'all:electron AND all:spin', max_results = 100, save = F
     # Set the base URL for the Arxiv API
     base_url = 'http://export.arxiv.org/api/query?'
 
-    # Set the search query
-    query = query
-
-    # Set the maximum number of results to retrieve
-    max_results = max_results
-
-    # Set the output directory
-    output_dir = 'arxiv_papers'
-
-    # Create the output directory if it doesn't already exist
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
     # Construct the API query URL
     url = base_url + 'search_query=' + query + '&max_results=' + str(max_results)
 
