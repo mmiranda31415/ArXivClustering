@@ -9,7 +9,7 @@ from collections import Counter
 from nltk.corpus import words
 from sklearn.cluster import KMeans
 
-def import_data(query = 'all:electron AND all:spin', max_results = 100, save = False):
+def import_data(query = 'all:electron AND all:spin', max_results = 100, save = False, verbose = False,):
     """Import text data from Arxiv papers, converst the data into word counts and returns a pandas dataframe"""
     # Set the base URL for the Arxiv API
     base_url = 'http://export.arxiv.org/api/query?'
@@ -36,27 +36,24 @@ def import_data(query = 'all:electron AND all:spin', max_results = 100, save = F
     # Parse the XML response to extract the paper URLs
     from xml.etree import ElementTree
     root = ElementTree.fromstring(response)
-    urls = []
+    titles_and_urls = []
     for entry in root.findall('{http://www.w3.org/2005/Atom}entry'):
+        title = entry.find('{http://www.w3.org/2005/Atom}title').text
         for link in entry.findall('{http://www.w3.org/2005/Atom}link'):
             if link.get('type') == 'application/pdf':
-                urls.append(link.get('href'))
-
-    for i, url in enumerate(urls):
-        paper = os.path.join(output_dir, 'paper.pdf')
-        urllib.request.urlretrieve(url, paper)
+                titles_and_urls.append((title, link.get('href')))
 
     # download the English words corpus
     nltk.download('words')
 
-    # create a set of English words
     english_words = set(words.words())
 
-    # Create a list of dictionaries to store the word frequencies for each paper
     word_freqs_list = []
 
-    for i, url in enumerate(urls):
-        # create an empty list to store valid words
+    paper_titles = []
+
+    for i, (title, url) in enumerate(titles_and_urls):
+
         valid_words = []
 
         try:
@@ -83,10 +80,13 @@ def import_data(query = 'all:electron AND all:spin', max_results = 100, save = F
             word_freq = dict(Counter(valid_words))
             word_freqs_list.append(word_freq)
             
+            paper_titles.append(title)
+
             # Remove the temporary PDF file
             os.remove(temp_file)
             
-            print('Processed paper', i+1)
+            if verbose == True:
+                print('Processed paper', i+1)
 
         except:
             print('Error processing paper:', url)
@@ -103,19 +103,20 @@ def import_data(query = 'all:electron AND all:spin', max_results = 100, save = F
     # Save the DataFrame to a CSV file
         df.to_csv('word_freqs.csv')
     
-    return df
+    return df, paper_titles
             
 def clustering(df, n_clusters = 2):
-    # Create a KMeans clustering model with 2 clusters
     kmeans = KMeans(n_clusters = n_clusters)
 
-    # Fit the model to the transposed dataframe
     kmeans.fit(df.transpose())
 
-    # Get the cluster labels for each paper
     cluster_labels = kmeans.labels_
 
-    # Add the cluster labels to the original dataframe
     return cluster_labels
 
-print(clustering(import_data()))
+data = import_data()
+
+print(clustering(data[0]))
+
+for title in data[1]:
+    print(title)
