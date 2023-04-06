@@ -4,10 +4,12 @@ import PyPDF2
 import re
 import nltk
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from collections import Counter
 from nltk.corpus import words
 from sklearn.cluster import KMeans
+from sklearn.manifold import TSNE
 
 def import_data(query = 'all:electron AND all:spin', max_results = 100, save = False, verbose = False,):
     """Import text data from Arxiv papers, converst the data into word counts and returns a pandas dataframe"""
