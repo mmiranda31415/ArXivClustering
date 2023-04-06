@@ -101,9 +101,22 @@ def clustering(df, n_clusters = 2):
 
     return cluster_labels
 
+def graph(df, cluster_labels, n_clusters = 2 ):
+    
+    tsne = TSNE( n_components = n_clusters, random_state = 0 )
+    X_tsne = tsne.fit_transform( df.transpose() )
+    plt.scatter( X_tsne[:, 0], X_tsne[:, 1], c = cluster_labels )
+    plt.show()
+    
+    return None
+
 data = import_data()
 
-print(clustering(data[0]))
+cluster_labels = clustering(data[0])
+
+print(cluster_labels)
 
 for title in data[1]:
     print(title)
+    
+graph(data[0], cluster_labels,)
