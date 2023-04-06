@@ -11,7 +11,7 @@ from nltk.corpus import words
 from sklearn.cluster import KMeans
 from sklearn.manifold import TSNE
 
-def import_data(query = 'all:electron AND all:spin', max_results = 100, save = False, verbose = False,):
+def import_data(query = 'cat:q-bio.BM%20AND%20all:spin', max_results = 100, save = False, verbose = False,):
     """Import text data from Arxiv papers, converst the data into word counts and returns a pandas dataframe"""
     # Set the base URL for the Arxiv API
     base_url = 'http://export.arxiv.org/api/query?'
@@ -103,9 +103,9 @@ def clustering(df, n_clusters = 2):
 
     return cluster_labels
 
-def graph(df, cluster_labels, n_clusters = 2 ):
+def graph(df, cluster_labels, n_components = 2 ):
     
-    tsne = TSNE( n_components = n_clusters, random_state = 0 )
+    tsne = TSNE( n_components = n_components, random_state = 0 )
     X_tsne = tsne.fit_transform( df.transpose() )
     plt.scatter( X_tsne[:, 0], X_tsne[:, 1], c = cluster_labels )
     plt.show()
